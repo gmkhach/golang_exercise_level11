@@ -1,9 +1,11 @@
 package main
 
 import (
+	"errors"
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
 )
 
 type person struct {
@@ -20,7 +22,8 @@ type customer struct {
 type sqrtError struct {
 	lat		string
 	long	string
-	err		error
+	err1	error
+	err2	error
 }
 
 func main() {
@@ -103,15 +106,10 @@ func main() {
 			- lat: "24.2192N"
 			- long: "79.3314W"
 	*/
-	_, err := sqrt(-1)
+	_, err = sqrt(-1.0)
 	if err != nil {
 		log.Println(err)
 	}
-
-	/*
-		Exercise 5
-
-	*/
 }
 
 func toJSON(a interface{}) ([]byte, error) {
@@ -138,12 +136,19 @@ func foo(e error) {
 }
 
 func (se sqrtError) Error() string {
-	return fmt.Sprintf("math error: %v %v %v", se.lat, se.long, se.err)
+	return fmt.Sprintf("math error: %v %v %v %v", se.lat, se.long, se.err1, se.err2)
 }
 
-func sqrt(f float64) (float64, error) {
-	if f < 0 {
-		// write your eeror code here
+func sqrt(n float64) (float64, error) {
+	if n < 0 {
+		// Here we are passing two different type of error to demonstrat that with Errorf we can also calpture the value passed.
+		se := sqrtError {
+			lat: "24.2192N",
+			long: "79.3314W",
+			err1: errors.New("I'm sorry Dave, I'm afraid I can't do that."),
+			err2: fmt.Errorf("The value passed was: %v", n),
+		}
+		return math.NaN(), se
 	}
-	return 43, nil
+	return math.Sqrt(n), nil
 }
